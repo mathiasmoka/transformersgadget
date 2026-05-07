@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformers Gadget — Carry Less. Do More.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080a0f;
+    --off-white: #f0ede8;
+    --cream: #faf8f4;
+    --accent: #e8ff47;
+    --accent-dim: #b8cc30;
+    --rust: #c94a2b;
+    --steel: #1c2333;
+    --steel-light: #2a3347;
+    --mid: #6b7280;
+    --border: rgba(240,237,232,0.1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--off-white);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  #cursor {
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+    mix-blend-mode: difference;
+  }
+  #cursor.hovering { width: 40px; height: 40px; }
+  #cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(232,255,71,0.5);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.25s ease, width 0.3s, height 0.3s;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9990;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.4s, background 0.4s, padding 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(8,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-color: var(--border);
+    padding: 16px 48px;
+  }
+  .nav-logo {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--off-white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 36px; align-items: center; }
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--off-white); }
+  .nav-cta {
+    background: var(--accent) !important;
+    color: var(--black) !important;
+    padding: 10px 22px;
+    border-radius: 2px;
+    font-weight: 700 !important;
+    transition: background 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--accent-dim) !important; transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 120px 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(232,255,71,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,255,71,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.8s 0.3s forwards;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hero-label::before {
+    content: '';
+    display: inline-block; width: 32px; height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(52px, 8vw, 120px);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    max-width: 900px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 0.9s 0.5s forwards;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+    position: relative;
+  }
+  h1 em::after {
+    content: '';
+    position: absolute; left: 0; bottom: 4px; right: 0;
+    height: 4px; background: var(--rust);
+    transform: scaleX(0); transform-origin: left;
+    animation: scaleIn 0.6s 1.4s forwards;
+  }
+
+  .hero-sub {
+    margin-top: 36px;
+    max-width: 480px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--mid);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .hero-actions {
+    margin-top: 48px;
+    display: flex; gap: 16px; align-items: center;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--black);
+    padding: 16px 36px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: none;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover {
+    background: var(--accent-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(232,255,71,0.25);
+  }
+  .btn-ghost {
+    color: var(--off-white);
+    padding: 16px 28px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    cursor: none;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--off-white); }
+
+  .hero-scroll-hint {
+    position: absolute; bottom: 40px; left: 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid);
+    display: flex; align-items: center; gap: 16px;
+    opacity: 0;
+    animation: fadeUp 0.8s 1.5s forwards;
+  }
+  .scroll-line {
+    width: 1px; height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--mid));
+    animation: scrollAnim 2s infinite;
+  }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--steel);
+    padding: 16px 0;
+  }
+  .marquee-track {
+    display: flex; gap: 0;
+    animation: marquee 22s linear infinite;
+    white-space: nowrap;
+  }
+  .marquee-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid);
+    padding: 0 48px;
+    display: flex; align-items: center; gap: 48px;
+  }
+  .marquee-item::after {
+    content: '✦';
+    color: var(--accent);
+    font-size: 8px;
+  }
+
+  /* ── SECTION BASE ── */
+  section { padding: 120px 48px; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::before {
+    content: '';
+    display: inline-block; width: 24px; height: 1px;
+    background: var(--accent);
+  }
+
+  /* ── TRANSFORMS SECTION ── */
+  #transforms { background: var(--cream); color: var(--black); }
+  #transforms .section-label { color: var(--rust); }
+  #transforms .section-label::before { background: var(--rust); }
+
+  #transforms h2 {
+    font-size: clamp(38px, 5vw, 72px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    max-width: 700px;
+    margin-bottom: 80px;
+  }
+  #transforms h2 span { color: var(--rust); }
+
+  .transforms-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: rgba(0,0,0,0.1);
+  }
+  .transform-card {
+    background: var(--off-white);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    transition: background 0.4s;
+  }
+  .transform-card:hover { background: var(--black); }
+  .transform-card:hover .tc-title { color: var(--accent); }
+  .transform-card:hover .tc-desc { color: var(--mid); }
+  .transform-card:hover .tc-number { color: rgba(232,255,71,0.15); }
+
+  .tc-number {
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 1;
+    color: rgba(0,0,0,0.06);
+    position: absolute;
+    top: 20px; right: 20px;
+    letter-spacing: -0.05em;
+    transition: color 0.4s;
+  }
+  .tc-icon {
+    font-size: 48px;
+    margin-bottom: 24px;
+    display: block;
+  }
+  .tc-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    color: var(--black);
+    transition: color 0.4s;
+  }
+  .tc-desc {
+    font-size: 15px;
+    line-height: 1.65;
+    color: #4a5568;
+    transition: color 0.4s;
+  }
+  .tc-tag {
+    margin-top: 32px;
+    display: inline-flex;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: rgba(201,74,43,0.1);
+    color: var(--rust);
+    padding: 6px 12px;
+    border-radius: 2px;
+  }
+
+  /* ── FEATURES ── */
+  #features { background: var(--black); }
+  #features h2 {
+    font-size: clamp(36px, 5vw, 68px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    max-width: 600px;
+    margin-bottom: 80px;
+  }
+
+  .features-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+  }
+  .feature-item {
+    background: var(--steel);
+    padding: 48px 40px;
+    border: 1px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+    cursor: none;
+  }
+  .feature-item:hover {
+    background: var(--steel-light);
+    border-color: rgba(232,255,71,0.2);
+  }
+  .fi-icon {
+    width: 48px; height: 48px;
+    background: rgba(232,255,71,0.1);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 24px;
+  }
+  .fi-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+  }
+  .fi-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--mid);
+  }
+
+  /* ── STATS ── */
+  #stats {
+    background: var(--accent);
+    color: var(--black);
+    padding: 80px 48px;
+  }
+  .stats-inner {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: rgba(0,0,0,0.1);
+  }
+  .stat-block {
+    background: var(--accent);
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: clamp(48px, 6vw, 80px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--black);
+  }
+  .stat-unit {
+    font-size: 28px;
+    font-weight: 400;
+    color: rgba(0,0,0,0.5);
+  }
+  .stat-label {
+    margin-top: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.55);
+  }
+
+  /* ── HOW IT WORKS ── */
+  #how {
+    background: var(--steel);
+    padding: 120px 48px;
+  }
+  #how h2 {
+    font-size: clamp(36px, 5vw, 68px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 80px;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .step {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    cursor: none;
+    transition: background 0.3s;
+  }
+  .step:last-child { border-bottom: none; }
+  .step:hover { background: rgba(232,255,71,0.03); }
+  .step-num {
+    width: 100px;
+    flex-shrink: 0;
+    padding: 40px;
+    display: flex; align-items: flex-start; justify-content: center;
+    border-right: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+  .step-content {
+    padding: 40px 48px;
+    flex: 1;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .step-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .step-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--mid);
+  }
+  .step-emoji {
+    margin-left: auto;
+    padding: 40px;
+    font-size: 36px;
+    display: flex; align-items: center;
+  }
+
+  /* ── TESTIMONIALS ── */
+  #testimonials { background: var(--black); }
+  #testimonials h2 {
+    font-size: clamp(36px, 5vw, 68px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 80px;
+  }
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .testi-card {
+    background: var(--steel);
+    padding: 36px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    transition: border-color 0.3s, transform 0.3s;
+    cursor: none;
+  }
+  .testi-card:hover {
+    border-color: rgba(232,255,71,0.3);
+    transform: translateY(-4px);
+  }
+  .testi-stars {
+    color: var(--accent);
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+  .testi-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--off-white);
+    margin-bottom: 28px;
+  }
+  .testi-author {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .testi-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--rust), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--black);
+  }
+  .testi-name {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  .testi-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── PRICING ── */
+  #pricing {
+    background: var(--cream);
+    color: var(--black);
+  }
+  #pricing h2 {
+    font-size: clamp(36px, 5vw, 68px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 80px;
+    max-width: 600px;
+  }
+  #pricing .section-label { color: var(--rust); }
+  #pricing .section-label::before { background: var(--rust); }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .pricing-card {
+    border: 2px solid rgba(0,0,0,0.08);
+    padding: 40px;
+    border-radius: 4px;
+    position: relative;
+    transition: border-color 0.3s, transform 0.3s;
+    background: white;
+    cursor: none;
+  }
+  .pricing-card:hover { transform: translateY(-4px); }
+  .pricing-card.featured {
+    background: var(--black);
+    color: var(--off-white);
+    border-color: var(--black);
+  }
+  .pricing-card.featured:hover { border-color: var(--accent); }
+  .pricing-badge {
+    position: absolute;
+    top: -14px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--black);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 2px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pricing-name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 16px;
+  }
+  .pricing-card.featured .pricing-name { color: rgba(240,237,232,0.5); }
+  .pricing-price {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .pricing-price sup { font-size: 24px; vertical-align: super; font-weight: 400; }
+  .pricing-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 0.1em;
+    margin-bottom: 32px;
+  }
+  .pricing-card.featured .pricing-period { color: rgba(240,237,232,0.4); }
+  .pricing-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .pricing-features li {
+    font-size: 14px;
+    display: flex; align-items: center; gap: 10px;
+    color: #374151;
+  }
+  .pricing-card.featured .pricing-features li { color: var(--mid); }
+  .pricing-features li::before {
+    content: '✓';
+    color: var(--rust);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .pricing-card.featured .pricing-features li::before { color: var(--accent); }
+  .pricing-btn {
+    display: block;
+    text-align: center;
+    padding: 14px;
+    border-radius: 2px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: none;
+    transition: background 0.2s, transform 0.2s;
+    border: 2px solid #374151;
+    color: #374151;
+    background: transparent;
+  }
+  .pricing-card:hover .pricing-btn { background: #374151; color: white; }
+  .pricing-card.featured .pricing-btn {
+    background: var(--accent);
+    color: var(--black);
+    border-color: var(--accent);
+  }
+  .pricing-card.featured:hover .pricing-btn { background: var(--accent-dim); border-color: var(--accent-dim); }
+
+  /* ── CTA SECTION ── */
+  #cta {
+    background: var(--rust);
+    padding: 120px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #cta::before {
+    content: 'TG';
+    position: absolute;
+    font-size: 400px;
+    font-weight: 800;
+    color: rgba(0,0,0,0.08);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    letter-spacing: -0.05em;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  #cta h2 {
+    font-size: clamp(40px, 7vw, 100px);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    color: var(--cream);
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
+  }
+  #cta p {
+    font-size: 18px;
+    color: rgba(240,237,232,0.7);
+    margin-bottom: 48px;
+    max-width: 480px;
+    margin-left: auto; margin-right: auto;
+    position: relative; z-index: 1;
+  }
+  #cta .btn-cta {
+    background: var(--accent);
+    color: var(--black);
+    padding: 20px 48px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: none;
+    text-decoration: none;
+    display: inline-block;
+    position: relative; z-index: 1;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+  #cta .btn-cta:hover {
+    background: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--black);
+    padding: 80px 48px 40px;
+    border-top: 1px solid var(--border);
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 64px;
+    margin-bottom: 64px;
+  }
+  .footer-brand .logo {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .footer-brand .logo span { color: var(--accent); }
+  .footer-brand p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--mid);
+    max-width: 260px;
+    margin-bottom: 24px;
+  }
+  .footer-social {
+    display: flex; gap: 12px;
+  }
+  .social-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    cursor: none;
+    transition: border-color 0.2s, background 0.2s;
+    text-decoration: none;
+    color: var(--mid);
+  }
+  .social-btn:hover { border-color: var(--accent); background: rgba(232,255,71,0.05); color: var(--accent); }
+  .footer-col h4 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--off-white);
+    margin-bottom: 20px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col ul li a {
+    font-size: 14px;
+    color: var(--mid);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-col ul li a:hover { color: var(--off-white); }
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+  .footer-bottom p {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 0.1em;
+  }
+  .footer-bottom span { color: var(--accent); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    to { transform: scaleX(1); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes scrollAnim {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.3); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── PRODUCT VISUAL ── */
+  .hero-visual {
+    position: absolute;
+    right: -80px; top: 50%;
+    transform: translateY(-50%);
+    width: 600px; height: 600px;
+    pointer-events: none;
+  }
+  .product-blob {
+    width: 100%; height: 100%;
+    animation: float 5s ease-in-out infinite;
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    nav.scrolled { padding: 14px 24px; }
+    .nav-links { display: none; }
+    section { padding: 80px 24px; }
+    #hero { padding: 100px 24px 60px; }
+    .hero-visual { display: none; }
+    .transforms-grid { grid-template-columns: 1fr; }
+    .features-layout { grid-template-columns: 1fr; }
+    .stats-inner { grid-template-columns: repeat(2, 1fr); }
+    .testi-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr; gap: 32px; }
+    .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+    .hero-scroll-hint { display: none; }
+    #cta { padding: 80px 24px; }
+    footer { padding: 60px 24px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">Transformers<span>Gadget</span></a>
+  <div class="nav-links">
+    <a href="#transforms">Modes</a>
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#testimonials">Reviews</a>
+    <a href="#pricing" class="nav-cta">Pre-order</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+
+  <div class="hero-label">Launching 2025 — World's First</div>
+  <h1>One bag.<br><em>Infinite</em><br>forms.</h1>
+  <p class="hero-sub">The modular backpack that transforms into an umbrella, chair, or tent in under 30 seconds — engineered for adventurers who carry less but do more.</p>
+  <div class="hero-actions">
+    <a href="#pricing" class="btn-primary">Pre-order now →</a>
+    <a href="#transforms" class="btn-ghost">See all modes</a>
+  </div>
+
+  <!-- SVG Product Visual -->
+  <div class="hero-visual">
+    <svg class="product-blob" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#e8ff47" stop-opacity="0.15"/>
+          <stop offset="100%" stop-color="#e8ff47" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="bagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1c2333"/>
+          <stop offset="100%" stop-color="#0d1117"/>
+        </linearGradient>
+        <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e8ff47"/>
+          <stop offset="100%" stop-color="#b8cc30"/>
+        </linearGradient>
+      </defs>
+      <!-- Glow -->
+      <circle cx="250" cy="250" r="200" fill="url(#glow)"/>
+      <!-- Backpack body -->
+      <rect x="145" y="130" width="210" height="260" rx="24" fill="url(#bagGrad)"/>
+      <!-- Top handle -->
+      <rect x="210" y="110" width="80" height="28" rx="14" fill="#2a3347"/>
+      <!-- Straps -->
+      <rect x="165" y="385" width="18" height="80" rx="9" fill="#2a3347"/>
+      <rect x="317" y="385" width="18" height="80" rx="9" fill="#2a3347"/>
+      <!-- Main zip -->
+      <path d="M165 220 Q250 200 335 220" stroke="#e8ff47" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+      <!-- Front pocket -->
+      <rect x="170" y="270" width="160" height="90" rx="10" fill="#141a26"/>
+      <path d="M175 315 Q250 300 325 315" stroke="#e8ff47" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>
+      <!-- Logo mark -->
+      <text x="250" y="185" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="22" fill="#e8ff47" letter-spacing="3">TG</text>
+      <!-- Side buckles -->
+      <rect x="135" y="200" width="14" height="24" rx="3" fill="#e8ff47" opacity="0.6"/>
+      <rect x="351" y="200" width="14" height="24" rx="3" fill="#e8ff47" opacity="0.6"/>
+      <!-- Mode icons floating -->
+      <g opacity="0.85">
+        <circle cx="80" cy="160" r="28" fill="#1c2333" stroke="#e8ff4730" stroke-width="1"/>
+        <text x="80" y="168" text-anchor="middle" font-size="22">☂️</text>
+      </g>
+      <g opacity="0.85">
+        <circle cx="420" cy="200" r="28" fill="#1c2333" stroke="#e8ff4730" stroke-width="1"/>
+        <text x="420" y="208" text-anchor="middle" font-size="22">🪑</text>
+      </g>
+      <g opacity="0.85">
+        <circle cx="80" cy="340" r="28" fill="#1c2333" stroke="#e8ff4730" stroke-width="1"/>
+        <text x="80" y="348" text-anchor="middle" font-size="22">⛺</text>
+      </g>
+      <!-- Connecting lines -->
+      <line x1="108" y1="160" x2="145" y2="200" stroke="#e8ff4730" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="392" y1="200" x2="355" y2="220" stroke="#e8ff4730" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="108" y1="340" x2="145" y2="310" stroke="#e8ff4730" stroke-width="1" stroke-dasharray="4 4"/>
+    </svg>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    Scroll to explore
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">Backpack Mode</div>
+    <div class="marquee-item">Umbrella Mode</div>
+    <div class="marquee-item">Chair Mode</div>
+    <div class="marquee-item">Tent Mode</div>
+    <div class="marquee-item">Waterproof Shell</div>
+    <div class="marquee-item">2.1 kg Ultra-Light</div>
+    <div class="marquee-item">30-second Transform</div>
+    <div class="marquee-item">Backpack Mode</div>
+    <div class="marquee-item">Umbrella Mode</div>
+    <div class="marquee-item">Chair Mode</div>
+    <div class="marquee-item">Tent Mode</div>
+    <div class="marquee-item">Waterproof Shell</div>
+    <div class="marquee-item">2.1 kg Ultra-Light</div>
+    <div class="marquee-item">30-second Transform</div>
+  </div>
+</div>
+
+<!-- TRANSFORMS -->
+<section id="transforms">
+  <div class="section-label">3 Modes</div>
+  <h2>It becomes whatever<br>you need it <span>to be.</span></h2>
+
+  <div class="transforms-grid">
+    <div class="transform-card reveal">
+      <div class="tc-number">01</div>
+      <span class="tc-icon">☂️</span>
+      <div class="tc-title">Umbrella</div>
+      <p class="tc-desc">Deploy in 8 seconds flat. The top panel unfolds via tension-rod mechanics to cover up to 1.8m — big enough for two. UV protection + waterproof coating included.</p>
+      <span class="tc-tag">8-second deploy</span>
+    </div>
+    <div class="transform-card reveal" style="transition-delay:0.1s">
+      <div class="tc-number">02</div>
+      <span class="tc-icon">🪑</span>
+      <div class="tc-title">Chair</div>
+      <p class="tc-desc">Flip the frame, lock the crossbar. Instant portable seat holds up to 150kg. Perfect for airports, concerts, hikes, or waiting for literally anything.</p>
+      <span class="tc-tag">Up to 150kg</span>
+    </div>
+    <div class="transform-card reveal" style="transition-delay:0.2s">
+      <div class="tc-number">03</div>
+      <span class="tc-icon">⛺</span>
+      <div class="tc-title">Tent</div>
+      <p class="tc-desc">Unfold the full exoskeleton. Emergency-rated 1-person shelter in under 30 seconds. Windproof to 70km/h and rated for 3-season use. Your last resort is now your carry-on.</p>
+      <span class="tc-tag">30-second setup</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div id="stats">
+  <div class="stats-inner">
+    <div class="stat-block reveal">
+      <div class="stat-num">2.1<span class="stat-unit">kg</span></div>
+      <div class="stat-label">Total weight</div>
+    </div>
+    <div class="stat-block reveal" style="transition-delay:0.1s">
+      <div class="stat-num">8<span class="stat-unit">s</span></div>
+      <div class="stat-label">Fastest mode switch</div>
+    </div>
+    <div class="stat-block reveal" style="transition-delay:0.2s">
+      <div class="stat-num">40<span class="stat-unit">L</span></div>
+      <div class="stat-label">Storage capacity</div>
+    </div>
+    <div class="stat-block reveal" style="transition-delay:0.3s">
+      <div class="stat-num">4<span class="stat-unit">★</span></div>
+      <div class="stat-label">Modes in one bag</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">Built different</div>
+  <h2>Every detail<br>engineered for<br>adventure.</h2>
+
+  <div class="features-layout">
+    <div class="feature-item reveal">
+      <div class="fi-icon">🔩</div>
+      <div class="fi-title">Aerospace-grade Aluminum Frame</div>
+      <p class="fi-desc">The exoskeleton uses the same alloy found in commercial drone frames. Rigid when locked, fully collapsible for storage.</p>
+    </div>
+    <div class="feature-item reveal" style="transition-delay:0.1s">
+      <div class="fi-icon">💧</div>
+      <div class="fi-title">IPX6 Waterproof Shell</div>
+      <p class="fi-desc">Every seam is thermally bonded. Every zipper is coated. Rain, spray, splash — nothing gets through, whether you're in backpack mode or full shelter mode.</p>
+    </div>
+    <div class="feature-item reveal" style="transition-delay:0.1s">
+      <div class="fi-icon">🔋</div>
+      <div class="fi-title">Integrated 20,000mAh Power Bank</div>
+      <p class="fi-desc">Charge your devices from the hidden panel pocket. 3 USB-C ports, MagSafe compatible. Because the wilderness doesn't have wall outlets.</p>
+    </div>
+    <div class="feature-item reveal" style="transition-delay:0.2s">
+      <div class="fi-icon">📡</div>
+      <div class="fi-title">GPS Anti-Theft Tracker</div>
+      <p class="fi-desc">Know where your bag is, always. The embedded tracker runs 18 months on a single charge and pairs with iOS and Android in under 30 seconds.</p>
+    </div>
+    <div class="feature-item reveal">
+      <div class="fi-icon">🌡️</div>
+      <div class="fi-title">3-Season Thermal Liner</div>
+      <p class="fi-desc">The removable inner liner is Thinsulate-insulated for cold weather. Remove it in summer, clip it back for winter camping. One bag, all year.</p>
+    </div>
+    <div class="feature-item reveal" style="transition-delay:0.1s">
+      <div class="fi-icon">♻️</div>
+      <div class="fi-title">100% Recycled Materials</div>
+      <p class="fi-desc">Built from post-consumer rPET fabric. Every component is designed to be repaired or replaced — not thrown away. Built to last decades, not seasons.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-label">Process</div>
+  <h2>Transform in seconds,<br>not minutes.</h2>
+
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <div class="step-title">Pack your gear — just like any backpack</div>
+        <p class="step-desc">40L of organized storage with laptop sleeve, hip-belt pockets, and hidden valuables pocket. Start your day as a regular bag-carrier.</p>
+      </div>
+      <div class="step-emoji">🎒</div>
+    </div>
+    <div class="step reveal" style="transition-delay:0.1s">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <div class="step-title">Identify what you need — bag reads the moment</div>
+        <p class="step-desc">Rain incoming? Need to rest? Emergency shelter? Each mode has a dedicated quick-release mechanism on the outer frame.</p>
+      </div>
+      <div class="step-emoji">🧠</div>
+    </div>
+    <div class="step reveal" style="transition-delay:0.2s">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <div class="step-title">Pull the trigger — one motion, full transformation</div>
+        <p class="step-desc">Color-coded pull tabs make each transform intuitive. No manual, no instructions needed. If you can open a bag, you can do this.</p>
+      </div>
+      <div class="step-emoji">⚡</div>
+    </div>
+    <div class="step reveal" style="transition-delay:0.3s">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <div class="step-title">Lock in — structurally rigid in under 30 seconds</div>
+        <p class="step-desc">Magnetic locking pins confirm each position with a satisfying click. The system holds under load, wind, and weather until you decide to change again.</p>
+      </div>
+      <div class="step-emoji">🔐</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-label">Early reviews</div>
+  <h2>Adventurers love it<br>before launch.</h2>
+
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"I've tested it on a 3-week solo through-hike in Patagonia. The tent mode saved me twice. I will never carry a separate shelter again."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">ML</div>
+        <div>
+          <div class="testi-name">Marc L.</div>
+          <div class="testi-role">Ultra-distance hiker · Beta tester</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal" style="transition-delay:0.1s">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"I travel 200 days a year. Fitting my life into a carry-on is an art. TG changed the game — one bag replaced four items from my packing list."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">SA</div>
+        <div>
+          <div class="testi-name">Sofia A.</div>
+          <div class="testi-role">Digital nomad · 64 countries visited</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal" style="transition-delay:0.2s">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"As a photographer, I've hauled some ridiculous gear. This thing is legitimately brilliant — the chair mode alone has saved my back on 12-hour shoots."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">JK</div>
+        <div>
+          <div class="testi-name">James K.</div>
+          <div class="testi-role">Outdoor photographer · REI contributor</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-label">Pre-order pricing</div>
+  <h2>Invest in your adventures.</h2>
+
+  <div class="pricing-grid">
+    <div class="pricing-card reveal">
+      <div class="pricing-name">Explorer</div>
+      <div class="pricing-price"><sup>$</sup>249</div>
+      <div class="pricing-period">One-time · Estimated ship Q3 2025</div>
+      <ul class="pricing-features">
+        <li>Backpack + Umbrella modes</li>
+        <li>30L capacity</li>
+        <li>IPX6 waterproof</li>
+        <li>2-year warranty</li>
+        <li>2 color options</li>
+      </ul>
+      <a href="#" class="pricing-btn">Pre-order Explorer</a>
+    </div>
+
+    <div class="pricing-card featured reveal" style="transition-delay:0.1s">
+      <div class="pricing-badge">Most Popular</div>
+      <div class="pricing-name">Adventurer</div>
+      <div class="pricing-price"><sup>$</sup>399</div>
+      <div class="pricing-period">One-time · Estimated ship Q2 2025</div>
+      <ul class="pricing-features">
+        <li>All 4 modes unlocked</li>
+        <li>40L capacity</li>
+        <li>GPS tracker included</li>
+        <li>20,000mAh power bank</li>
+        <li>Thermal liner included</li>
+        <li>Lifetime warranty</li>
+      </ul>
+      <a href="#" class="pricing-btn">Pre-order Adventurer</a>
+    </div>
+
+    <div class="pricing-card reveal" style="transition-delay:0.2s">
+      <div class="pricing-name">Expedition</div>
+      <div class="pricing-price"><sup>$</sup>599</div>
+      <div class="pricing-period">One-time · Priority ship Q1 2025</div>
+      <ul class="pricing-features">
+        <li>All 4 modes + pro accessories</li>
+        <li>50L heavy-duty capacity</li>
+        <li>Dual GPS trackers</li>
+        <li>Solar charging panel</li>
+        <li>Modular add-on system</li>
+        <li>Lifetime + accident coverage</li>
+      </ul>
+      <a href="#" class="pricing-btn">Pre-order Expedition</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <h2>Stop carrying more.<br>Start doing more.</h2>
+  <p>Join 14,000+ adventurers on the early access list. Ships Q1–Q3 2025. Free returns, no questions asked.</p>
+  <a href="#pricing" class="btn-cta">Secure your bag →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo">Transformers<span>Gadget</span></div>
+      <p>The world's first modular backpack that becomes whatever you need it to be. Built for people who refuse to choose.</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn">𝕏</a>
+        <a href="#" class="social-btn">in</a>
+        <a href="#" class="social-btn">▶</a>
+        <a href="#" class="social-btn">◎</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#">All Modes</a></li>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">Materials</a></li>
+        <li><a href="#">Compare</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Manifesto</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Press Kit</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Use</a></li>
+        <li><a href="#">Warranty</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 <span>TransformersGadget.com</span> — All rights reserved.</p>
+    <p>Made for adventurers, by adventurers. <span>✦</span></p>
+  </div>
+</footer>
+
+<script>
+  // ── CURSOR ──
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button, .transform-card, .feature-item, .testi-card, .pricing-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+  });
+
+  // ── NAV SCROLL ──
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ── SCROLL REVEAL ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── SMOOTH ANCHOR SCROLL ──
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href');
+      if (id && id !== '#') {
+        e.preventDefault();
+        const target = document.querySelector(id);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  // ── PARALLAX HERO ──
+  window.addEventListener('scroll', () => {
+    const hero = document.querySelector('#hero');
+    const visual = document.querySelector('.hero-visual');
+    if (visual && window.scrollY < window.innerHeight) {
+      visual.style.transform = `translateY(calc(-50% + ${window.scrollY * 0.15}px))`;
+    }
+    if (hero) {
+      const bg = hero.querySelector('.hero-grid-bg');
+      if (bg) bg.style.transform = `translateY(${window.scrollY * 0.08}px)`;
+    }
+  });
+</script>
+</body>
+</html>
