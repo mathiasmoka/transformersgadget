@@ -2,6 +2,12 @@ Welcome to the repository for **Transformers Gadget**, a futuristic landing page
 
 This repository hosts a high-fidelity front-end prototype designed to pitch a disruptive consumer product: a high-end, modular, engineering-forward backpack that transforms into an umbrella, a portable seat, or a 3-season emergency tent in under 30 seconds.
 
+## 👥 Project Context (English Class)
+
+This website functioned as the primary interactive visual anchor during a graded English Debating and Public Speaking module focused on Entrepreneurship.
+
+> 🎯 **Pitch Objective:** Defend market viability, handle high-pressure cross-examinations from classmate "Sharks," and communicate an engineering-heavy device layout clearly using advanced public speaking structures.
+
 ---
 
 ## 🦈 The Shark Tank Pitch Concept
@@ -131,15 +137,3 @@ Since this landing page is built strictly using vanilla front-end code, it has *
 1. Clone or download this repository.
 2. Open `index.html` directly in any modern web browser (Chrome, Safari, Edge, or Firefox).
 3. Ensure you have an internet connection active to allow Google Fonts (*Syne* and *DM Mono*) to load.
-
----
-
-## 👥 Project Context (English Class)
-
-This website functioned as the primary interactive visual anchor during a graded English Debating and Public Speaking module focused on Entrepreneurship.
-
-> 🎯 **Pitch Objective:** Defend market viability, handle high-pressure cross-examinations from classmate "Sharks," and communicate an engineering-heavy device layout clearly using advanced public speaking structures.
-
-```
-
-```
