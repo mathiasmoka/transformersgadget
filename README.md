@@ -78,7 +78,7 @@ print("README.md generated successfully.")
 Your markdown file is ready
 [file-tag: code-generated-file-0-1780606425787563229]
 
-```markdown
+
 # 🎒 Transformers Gadget — Carry Less. Do More.
 
 Welcome to the repository for **Transformers Gadget**, a futuristic landing page developed for an **English Debating Class "Shark Tank" pitch session**. 
