@@ -93,6 +93,7 @@ This repository hosts a high-fidelity front-end prototype designed to pitch a di
 In modern commuting and outdoor adventures, consumers face a constant dilemma: pack heavy to prepare for all conditions, or travel light and risk getting caught in the elements. **Transformers Gadget** solves this by embedding an aerospace-grade mechanical exoskeleton directly into a 40L waterproof daily pack.
 
 ### 🔄 The Product Transformation Loop
+
 ```mermaid
 graph TD
     A[40L Ultra-Light Backpack] -->|8-Second Tension Rod Deploy| B(Umbrella Mode)
