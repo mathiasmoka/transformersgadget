@@ -69,15 +69,6 @@ This website functioned as the primary interactive visual anchor during a graded
 > 🎯 **Pitch Objective:** Defend market viability, handle high-pressure cross-examinations from classmate "Sharks," and communicate an engineering-heavy device layout clearly using advanced public speaking structures.
 > """
 
-with open("README.md", "w", encoding="utf-8") as f:
-f.write(readme_content)
-
-print("README.md generated successfully.")
-
-```
-Your markdown file is ready
-[file-tag: code-generated-file-0-1780606425787563229]
-
 
 # 🎒 Transformers Gadget — Carry Less. Do More.
 
