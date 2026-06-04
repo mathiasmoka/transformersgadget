@@ -8,6 +8,8 @@ This repository hosts a high-fidelity front-end prototype designed to pitch a di
 
 This website functioned as the primary interactive visual anchor during a graded English Debating and Public Speaking module focused on Entrepreneurship.
 
+> ⚠️ **Disclaimer:** This product, its engineering specifications, pricing tiers, and brand statements are **purely fictional**. They were created solely as a conceptual exercise for an academic presentation and do not represent a real commercial item, active business venture, or product in development.
+
 > 🎯 **Pitch Objective:** Defend market viability, handle high-pressure cross-examinations from classmate "Sharks," and communicate an engineering-heavy device layout clearly using advanced public speaking structures.
 
 ---
