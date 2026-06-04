@@ -26,7 +26,6 @@ graph TD
     style B fill:#2a3347,stroke:#c94a2b,stroke-width:1px,color:#fff
     style C fill:#2a3347,stroke:#c94a2b,stroke-width:1px,color:#fff
     style D fill:#2a3347,stroke:#c94a2b,stroke-width:1px,color:#fff
-
 ```
 
 ---
