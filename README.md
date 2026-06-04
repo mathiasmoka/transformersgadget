@@ -1,14 +1,14 @@
-## 👥 Project Context (English Class)
-
-This website functioned as the primary interactive visual anchor during a graded English Debating and Public Speaking module focused on Entrepreneurship.
-
-> 🎯 **Pitch Objective:** Defend market viability, handle high-pressure cross-examinations from classmate "Sharks," and communicate an engineering-heavy device layout clearly using advanced public speaking structures.
-
 # 🎒 Transformers Gadget — Carry Less. Do More.
 
 Welcome to the repository for **Transformers Gadget**, a futuristic landing page developed for an **English Debating Class "Shark Tank" pitch session**. 
 
 This repository hosts a high-fidelity front-end prototype designed to pitch a disruptive consumer product: a high-end, modular, engineering-forward backpack that transforms into an umbrella, a portable seat, or a 3-season emergency tent in under 30 seconds.
+
+## 👥 Project Context (English Class)
+
+This website functioned as the primary interactive visual anchor during a graded English Debating and Public Speaking module focused on Entrepreneurship.
+
+> 🎯 **Pitch Objective:** Defend market viability, handle high-pressure cross-examinations from classmate "Sharks," and communicate an engineering-heavy device layout clearly using advanced public speaking structures.
 
 ---
 
